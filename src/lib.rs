@@ -24,6 +24,13 @@ pub enum Error<E> {
 /// I²C address
 pub const ADDRESS: u8 = 0x40;
 
+pub struct MilliCelsius(i32);
+
+impl MilliCelsius {
+    pub fn as_millicelsius(&self) -> i32 { self.0 }
+    pub fn as_celsius(&self) -> f32 { self.0 as f32 / 1000. }
+}
+
 /// I²C commands
 #[allow(dead_code)]
 #[derive(Copy, Clone)]
@@ -81,7 +88,7 @@ where
 
     /// Starts a temperature measurement and waits for it to finish before
     /// returning the measured value.
-    pub fn temperature(&mut self) -> Result<i16, Error<E>> {
+    pub fn temperature(&mut self) -> Result<MilliCelsius, Error<E>> {
         self.command(Command::MeasureTempNoHoldMaster)?;
 
         // Wait for conversion to finish.
@@ -113,6 +120,6 @@ where
 ///
 /// Formula (datasheet 6.2): -46.85 + 175.72 * (val / 2^16)
 /// Optimized for integer fixed point (3 digits) arithmetic.
-fn convert_temperature(temp_raw: u16) -> i16 {
-    ((((temp_raw as u32) * 21965) >> 13) - 46850) as i16
+fn convert_temperature(temp_raw: u16) -> MilliCelsius {
+    MilliCelsius(((((temp_raw as u32) * 21965) >> 13) - 46850) as i32)
 }
