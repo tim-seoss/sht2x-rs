@@ -105,7 +105,7 @@ where
 
         let temp_raw = self.read_u16()?; // TODO CRC
 
-        Ok(convert_temperature(temp_raw))
+        Ok(convert_raw_temperature(temp_raw))
     }
 
     /// Starts a relative humidity measurement and waits for it to finish before
@@ -142,7 +142,7 @@ where
 ///
 /// Formula (datasheet 6.2): -46.85 + 175.72 * (val / 2^16)
 /// Optimized for integer fixed point (3 digits) arithmetic.
-fn convert_temperature(temp_raw: u16) -> MilliCelsius {
+fn convert_raw_temperature(temp_raw: u16) -> MilliCelsius {
     MilliCelsius((((((temp_raw & 0xfffc) as u32) * 21965) >> 13) - 46850) as i32)
 }
 
